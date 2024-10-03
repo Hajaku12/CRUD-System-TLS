@@ -326,6 +326,71 @@ This diagram illustrates the architecture of the Property Management System, inc
 - [Docker](https://www.docker.com/) - Containerization
 - [MySQL](https://www.mysql.com/) - Relational Database
 
+## Generating Project Documentation
+
+1. **Generate the Site**
+    - Run the following command to generate the site documentation:
+      ```sh
+      mvn site
+      ```
+
+2. **Add Javadoc Plugin for Documentation**
+    - Add the Javadoc plugin to the `reporting` section of the `pom.xml`:
+      ```xml
+      <project>
+        ...
+        <reporting>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>2.10.1</version>
+              <configuration>
+                ...
+              </configuration>
+            </plugin>
+          </plugins>
+        </reporting>
+        ...
+      </project>
+      ```
+
+    - To generate Javadoc as an independent element, add the plugin in the `build` section of the `pom.xml`:
+      ```xml
+      <project>
+        ...
+        <build>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>2.10.1</version>
+              <configuration>
+                ...
+              </configuration>
+            </plugin>
+          </plugins>
+        </build>
+        ...
+      </project>
+      ```
+
+3. **Generate Javadoc Commands**
+    - Use the following commands to generate Javadocs:
+      ```sh
+      mvn javadoc:javadoc
+      mvn javadoc:jar
+      mvn javadoc:aggregate
+      mvn javadoc:aggregate-jar
+      mvn javadoc:test-javadoc
+      mvn javadoc:test-jar
+      mvn javadoc:test-aggregate
+      mvn javadoc:test-aggregate-jar
+      ```
+
+## License
+This project is licensed under the MIT License - see the `LICENSE.txt` file for details.
+
 ## Versioned
 
 We use [Git](https://github.com/) for version control. For available versions, see the tags in this repository.
