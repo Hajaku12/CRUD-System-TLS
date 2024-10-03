@@ -1,16 +1,11 @@
-version: '3.8'
 services:
   mysql:
-    image: mysql:8.0
+    container_name: 'guide-mysql'
+    image: 'mysql:latest'
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: user
-      MYSQL_PASSWORD: user_password
+      - 'MYSQL_DATABASE=mydatabase'
+      - 'MYSQL_PASSWORD=password'
+      - 'MYSQL_ROOT_PASSWORD=password'
+      - 'MYSQL_USER=user'
     ports:
-      - "3306:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-
-volumes:
-  mysql-data:
+      - '3000:3306'
