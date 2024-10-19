@@ -5,7 +5,7 @@ services:
     environment:
       - 'MYSQL_DATABASE=mydatabase'
       - 'MYSQL_PASSWORD=password'
-      - 'MYSQL_ROOT_PASSWORD=password'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
       - 'MYSQL_USER=user'
     ports:
       - '3000:3306'

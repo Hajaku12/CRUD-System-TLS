@@ -1,21 +1,43 @@
-# CRUD Property Management System (Spring Boot and MySQL)
+# Property Management System with Spring Boot and MySQL and
 
-This project is a basic property management system built with Spring Boot, JPA, and MySQL. It enables users to perform CRUD operations (Create, Read, Update, Delete) on property records. The properties are saved in a MySQL database, and the application provides a REST API for interaction.
+This project is a property management system built using Spring Boot, JPA (Java Persistence API), and MySQL. It allows users to register, log in, and perform CRUD (Create, Read, Update, Delete) operations on property records. The application exposes a REST API for interaction and is deployed on AWS using EC2 instances.
 
-### Explanation:
+### Key Components
 
-#### PropertyServiceTest:
+1. **Backend (Spring Boot)**
+    - **PropertyService**: Contains business logic for managing properties.
+    - **PropertyRepository**: Handles database operations for property entities.
+    - **PropertyController**: Exposes API endpoints for property operations.
+    - **UserService**: Manages user-related operations like authentication and registration.
+    - **UserRepository**: Handles database operations for user entities.
+    - **UserController**: Exposes API endpoints for user operations.
 
-- Simulates interactions with `PropertyRepository` to ensure the service methods are invoked and return the expected outcomes.
-- Tests the primary methods: create, read, update, and delete.
+2. **Frontend**
+    - HTML pages for login, registration, and property management.
+    - JavaScript for handling user interactions and making API calls.
 
-#### PropertyControllerTest:
+3. **Database (MySQL)**
+    - Stores user and property data.
+   
+4. **Deployment (AWS)**
+    - Two EC2 instances: one for the Apache server and MySQL, and another for the Spring Boot application.
+    - Let's Encrypt certificates for HTTPS.
 
-- Utilizes `MockMvc` to mimic HTTP requests to the controller's endpoints.
-- Checks the HTTP responses, status codes (like `200 OK`), and the returned JSON data.
-- Tests include creating, retrieving all properties, retrieving by ID, updating, and deleting properties.
+### Configuration Files
+
+- **`application.properties`**: Configures the Spring Boot application, including database connection, server port, and SSL settings.
+- **`docker-compose.yml`**: Defines the MySQL service for Docker.
+
+### Key Functionalities
+
+- **User Registration and Login**: Interfaces for users to register and log in.
+- **CRUD Operations on Properties**: Users can create, read, update, and delete property records.
+- **REST API**: Exposes endpoints for interacting with property and user data.
+- **HTTPS**: Secures communication using SSL certificates.
 
 ## Getting Started
+
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -27,7 +49,7 @@ You need to install the following tools and configure their dependencies:
     java -version
     ```
 
-   It will look something like this:
+   Should return something like:
 
     ```bash
     java version "1.8.0"
@@ -51,27 +73,13 @@ You need to install the following tools and configure their dependencies:
     Apache Maven 3.6.3
     ```
 
-3. **Docker**
-    - Install Docker by following the instructions [here](https://docs.docker.com/get-docker/)
-    - Verify the installation:
-
-    ```bash
-    docker --version
-    ```
-
-   Should return something like:
-
-    ```bash
-    Docker version 20.10.7, build f0df350
-    ```
-
 ## Installing
 
 1. Clone the repository and navigate into the project directory:
 
     ```bash
-    git clone https://github.com/Hajaku12/CRUD-System-to-Management.git
-    cd CRUD-System-to-Management
+    git clone  https://github.com/Hajaku12/CRUD-System-TLS.git
+    cd CRUD-System-TLS
     ```
 
 2. Build the project:
@@ -80,38 +88,11 @@ You need to install the following tools and configure their dependencies:
     mvn clean package
     ```
 
-## Running the Application
-
-1. Start the MySQL service using Docker Compose:
+   Should display output similar to:
 
     ```bash
-    docker-compose up -d
+    [INFO] BUILD SUCCESS
     ```
-
-   The MySQL container will be created and running as defined in the `docker-compose.yml` file.
-
-2. Update your `application.properties` with the following configuration to connect to the MySQL container:
-
-    ```properties
-    spring.application.name=JPA
-    spring.datasource.url=jdbc:mysql://localhost:3000/mydatabase
-    spring.datasource.username=user
-    spring.datasource.password=P@ssword1
-    spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-    spring.jpa.hibernate.ddl-auto=update
-    spring.jpa.show-sql=true
-    spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
-
-    ```
-3. Run the application:
-
-    ```bash
-    java -jar target/accessing-data-jpa-initial-0.0.1-SNAPSHOT.jar
-    ```
-
-4. Access the API at: `http://localhost:8080/index.html`
-
-[Video_LocalHost.mov](video%2FVideo_LocalHost.mov)
 
 ## Test Resutls
 
@@ -120,273 +101,351 @@ To run the tests use:
   ```bash
   mvn test
   ```
-
-![img.png](img.png)
+![img_5.png](images%2Fimg_5.png)
 
 ## Deployment in AWS
 
-1. Access the ServerSQL instance and install the package repository.
+To run the program on AWS, we need to have two instances, in my case, they are the following.
 
-![instanciasAWS.png](images%2FinstanciasAWS.png)
+![img_4.png](images%2Fimg_4.png)
 
-2. Import the MySQL GPG key manually:
+On the `apache_server` instance, both MySQL and the Apache web server will be set up, while the Spring Boot application will be deployed on a separate instance. Each machine will have a Let's Encrypt certificate generated to enable HTTPS.
 
+Each EC2 instance requires a unique DNS domain to generate Let's Encrypt certificates. You can obtain free domains from the following website: [DuckDNS](https://www.duckdns.org/).
+![alt text](images/imageDNS.png)
+
+* **Apache and MySQL Server** ---> labserverapachee.duckdns.org
+* **Backend Server** ---> serverapacheback.duckdns.org
+
+### **instance ServerSQL with Apache**
+
+#### A. Install SQL
+
+1. To set up SQL on the EC2 instance, please consult the README file in the following repository.
     ```bash
-    sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+    https://github.com/Hajaku12/CRUD-System-to-Management.git
     ```
 
-3. Install MySQL:
+2. Configuration file and Creating the Database
 
+    ![img_1.png](images%2Fimg_1.png)
+
+    ![img_2.png](images%2Fimg_2.png)
+#### B. Install APACHE
+
+1. Connect to the EC2 instance.
+
+   To begin, establish a connection to the EC2 instance via SSH. Execute the following command:
     ```bash
-    sudo yum install mysql-community-server -y
+    ssh -i "apache_server_key.pem" ec2-user@ec2-3-81-46-187.compute-1.amazonaws.com
     ```
 
-4. Retrieve the root password:
-
+2. Update the packages.
     ```bash
-    sudo cat /var/log/mysqld.log | grep 'temporary password'
+    sudo yum update -y
     ```
 
-5. Log in with the retrieved password and change it:
+3. Install Apache.
 
     ```bash
-    sudo mysql -u root
+    sudo yum install httpd -y
+    ```
+
+4. Start and enable Apache.
+
+    ```bash
+    sudo systemctl start httpd
+    sudo systemctl enable httpd
+    ```
+
+5. Check the status of Apache:
+
+    ```bash
+    sudo systemctl status httpd
+    ```
+
+#### C. Let's Encrypt certificate
+
+1. Install Dependencies:
+
+   To use Certbot, first, install Python and pip (a package manager for Python):
+
+    ```bash
+    sudo yum install python3-pip -y
+    sudo pip3 install certbot
+
+    ```
+   You also need to install the Apache integration package:
+
+     ```bash
+    sudo yum install python-certbot-apache
+
+    ```
+2.  Configure Apache
+
+    Edit the configuration file for your virtual host for your domain:
+
+    ```bash
+    sudo nano /etc/httpd/conf.d/labserverapachee.duckdns.org.conf
+    ```
+
+    Ensure your configuration file includes the following settings:
+    ```bash
+    <VirtualHost *:80>
+        ServerName labserverapachee.duckdns.org
+        DocumentRoot /var/www/html
+
+        RewriteEngine on
+        RewriteCond %{SERVER_NAME} =labserverapachee.duckdns.org
+        RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [L,R=301]
+    </VirtualHost>
+    ```
+
+3. Run Certbot
+
+   Once the Apache configuration file is ready, you can run Certbot to obtain the SSL certificate:
+    ```bash
+    sudo certbot --apache -v -d labserverapachee.duckdns.org
+    ```
+
+4. Verification
+
+   Verify the certificate's functionality by opening your preferred browser and navigating to the DNS `labserverapachee.duckdns.org` using the HTTPS protocol.
+    
+    ![img.png](images%2Fimg.png)
+
+
+### **instance Backend (SprinBoot)**
+
+#### A. Let's Encrypt certificate
+
+1. Connect to the EC2 instance.
+
+   First, you must connect to the EC2 instance using SSH. Use the following command:
+
+    ```bash
+    ssh -i "Proyecto-Property-key.pem" ec2-user@ec2-3-87-29-180.compute-1.amazonaws.com
+    ```
+2. Install Certbot
+
+   You can do so using the following commands:
+
+    ```bash
+    sudo yum update -y
+    sudo yum install -y certbot python2-certbot-apache
+
+    ```
+3. Obtain a Let's Encrypt Certificate
+
+    ```bash
+    sudo certbot certonly --standalone -d serverapacheback.duckdns.org
+
+    ```
+    ![img_3.png](images%2Fimg_3.png)
+
+   This command will generate the certificate files:
+
+   + `fullchain.pem`: This is the certificate chain.
+   + `privkey.pem`: This is the private key.
+
+4. Copy the certificates to a location accessible by Spring Boot
+
+    ```bash
+    sudo cp /etc/letsencrypt/live/serverapacheback.duckdns.org/fullchain.pem /home/ec2-user/
+    sudo cp /etc/letsencrypt/live/serverapacheback.duckdns.org/privkey.pem /home/ec2-user/
+    ```
+
+5. Verify access permissions
+
+    ```bash
+    sudo chown ec2-user:ec2-user /home/ec2-user/privkey.pem
+    sudo chmod 600 /home/ec2-user/privkey.pem
+
+    sudo chown ec2-user:ec2-user /home/ec2-user/fullchain.pem
+    sudo chmod 600 /home/ec2-user/fullchain.pem
+    ```
+
+6. Configure Spring Boot for HTTPS: Modify the application.properties file:
+
+    ```bash
+    server.port=443
+    server.ssl.key-store-type=PKCS12
+    server.ssl.key-store=/home/ec2-user/keystore.p12
+    server.ssl.key-store-password=password123
+    server.ssl.key-alias=springboot
+    ```
+
+7. Configuration of CORS in Spring Boot
+
+   To enable communication between servers, CORS must be configured on the project endpoints to allow requests from the Apache server.
+
+    Additionally, you can configure CORS globally in the application by using a `WebConfig` class.
+
+8. Convert the certificates to a PKCS12 format: Spring Boot requires a keystore in PKCS12 format.
+
+    ```bash
+    sudo yum install openssl -y
     ```
 
     ```bash
-    ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewSecurePassword';
-    ```
-
-6. Create a new user and grant privileges:
-
-    ```bash
-    CREATE USER 'user'@'%' IDENTIFIED BY 'your_password';
+    openssl pkcs12 -export -in /home/ec2-user/fullchain.pem -inkey /home/ec2-user/privkey.pem \ -out /home/ec2-user/keystore.p12 -name "springboot" -password pass:password123
     ```
 
     ```bash
-    GRANT ALL PRIVILEGES ON *.* TO 'user'@'%' WITH GRANT OPTION;
+    sudo chown ec2-user:ec2-user /home/ec2-user/keystore.p12
+    sudo chmod 600 /home/ec2-user/keystore.p12
     ```
+7. Upload the project's JAR file to the AWS instance and Run the Spring Boot Application.
 
     ```bash
-    FLUSH PRIVILEGES;
+    sudo java -jar PropertyApplication-0.0.1-SNAPSHOT.jar
     ```
 
-7. Create the database:
+8. You can now access the webpage using the following URL, as shown in the video.
 
     ```bash
-    CREATE DATABASE mydatabase;
+    http://serverapache.duckdns.org/login.html
     ```
 
-![createdDatabase.png](images%2FcreatedDatabase.png)
-
-8. Edit the MySQL configuration file to allow remote connections:
-
-    ```bash
-    sudo nano /usr/bin/etc/my.cnf
-    ```
-
-    ```bash
-    bind-address = 0.0.0.0
-    ```
-
-
-9. Make the necessary code changes.
-
-  ```properties
-spring.application.name=JPA
-spring.datasource.url=jdbc:mysql://54.221.172.31:3306/mydatabase
-spring.datasource.username=user
-spring.datasource.password=P@ssword1
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
-  ```
-![CrossOrigin.png](images%2FCrossOrigin.png)
-
-10. Upload the project's .jar file to the AWS instance:
-
-    ```bash
-    scp -i "key.pem" target/accessing-data-jpa-initial-0.0.1-SNAPSHOT.jar ec2-user@
-    ```
-11. Install Java:
-
-    ```bash
-    sudo yum install java-17-amazon-corretto -y
-    ```
-
-12. Run the project:
-
-    ```bash
-    java -jar target/accessing-data-jpa-initial-0.0.1-SNAPSHOT.jar
-    ```
-
-    Access the project at:
-
-    ```bash
-    http://18.207.198.219:8080/
-    ```
-
-[Video_Desploy.mov](video%2FVideo_Desploy.mov)
-
-
+[VideoTLS.mp4](images%2FVideoTLS.mp4)
+   
 ## Diagram Class
 
-![class.png](images%2Fclass.png)
+![img_6.png](images%2Fimg_6.png)
 
 ## Class Diagram Explanation
 
-This diagram shows the structure of the Property Management System and the relationships between the main classes in the backend.
+This diagram illustrates the structure of the Property Management System and depicts the relationships between the primary classes in the backend.
 
 ### Classes:
 
-1. **Property**:
-   - Represents a property with attributes like `id`, `address`, `price`, `size`, and `description`.
-   - Methods:
-      - `getId()`: Returns the property ID.
-      - `getAddress()`: Returns the property address.
-      - `getPrice()`: Returns the property price.
-      - `getSize()`: Returns the property size.
-      - `getDescription()`: Returns the property description.
+1. **Property (Entity)**
 
-2. **PropertyController**:
-   - Handles HTTP requests for managing properties.
-   - Dependencies:
-      - Injects `PropertyService` for business logic.
-   - Methods:
-      - `createProperty(Property property)`: Creates a new property.
-      - `getAllProperties()`: Retrieves all properties.
-      - `getPropertyById(Long id)`: Retrieves a property by ID.
-      - `updateProperty(Long id, Property propertyDetails)`: Updates a property by ID.
-      - `deleteProperty(Long id)`: Deletes a property by ID.
+   - Represents a real estate property in the database with fields such as `id`, `address`, `price`, `size`, and `description`. This class includes getter and setter methods to access and modify these fields.
 
-3. **PropertyService**:
-   - Implements business logic.
-   - Dependencies:
-      - Injects `PropertyRepository` for database interactions.
-   - Methods:
-      - `createProperty(Property property)`: Creates a new property.
-      - `getAllProperties()`: Returns all properties.
-      - `getPropertyById(Long id)`: Retrieves a property by ID.
-      - `updateProperty(Long id, Property propertyDetails)`: Updates a property.
-      - `deleteProperty(Long id)`: Deletes a property.
+2. **User (Entity)**
 
-4. **PropertyRepository**:
-   - Interface for data persistence, extends `JpaRepository`.
-   - Methods:
-      - `findByAddress(String address)`: Searches for properties by address.
+   - Represents a user in the system, mapped to a database table. Users are used for authentication and system management, with fields like `id`, `username`, and `password` (which is encrypted).
 
+3. **PropertyRepository (Repository)**
 
+   - Provides CRUD operations for `Property` entities using JPA. It includes a custom query method to find properties by their address.
+
+4. **UserRepository (Repository)**
+
+   - Manages CRUD operations for `User` entities. It includes a method to find a user by their username.
+
+5. **PropertyService (Service)**
+
+   - Contains the business logic related to property management. It interacts with the repository to create, update, delete, and retrieve properties.
+
+6. **UserService (Service)**
+
+   - Handles the business logic for user management, such as authentication and registration, and interacts with the repository for database operations.
+
+7. **PropertyController (Controller)**
+
+   - Provides API endpoints to manage properties (create, retrieve, update, delete). It communicates with `PropertyService` to execute business logic.
+
+8. **UserController (Controller)**
+
+   - Exposes API endpoints for user operations, such as registration and authentication. It communicates with `UserService` to handle these actions.
 ## Architecture
 
-![arquitecture.png](images%2Farquitecture.png)
+![img_7.png](images%2Fimg_7.png)
 
 ### Diagram Explanation
 
-This diagram illustrates the architecture of the Property Management System, including the frontend and backend components.
+### Explanation of the Diagram
 
-### Components:
+1. **Browser**:
+   - Users access the application via a browser, which interacts with both the Apache server and the Spring Boot backend. All communication between the browser and the servers is encrypted using HTTPS on **port 443**.
 
-1. **Frontend**:
-   - **User Interface**:
-      - Provides a web interface for users to interact with the system.
-      - Sends HTTP requests to the backend API.
-   - **API Client**:
-      - Communicates with the backend API to perform CRUD operations on properties.
-      - Sends requests like `GET`, `POST`, `PUT`, and `DELETE` to the backend.
+2. **EC2 Instance: Apache & MySQL**:
+   - This represents an Amazon EC2 instance hosting both the **Apache server** and **MySQL database**.
+   - **Apache Server**:
+      - The Apache server delivers static HTML pages to the browser. These pages include:
+         - `login.html`: The login page for user authentication.
+         - `register.html`: The registration page for new user sign-up.
+         - `properties.html`: A page for managing or viewing properties.
+   - **MySQL Database**:
+      - The Apache server also interacts with the MySQL database, which stores and manages data for the web application. Apache can query MySQL for user or property data.
 
-2. **Backend**:
-    - **Controller**:
-        - Handles HTTP requests from the frontend.
-        - Routes requests to the appropriate service methods.
-    - **Service**:
-        - Implements business logic for managing properties.
-        - Interacts with the repository for data access.
-    - **Repository**:
-        - Provides an interface for data persistence.
-        - Extends `JpaRepository` to perform CRUD operations on properties.
-    - **Database**:
-        - Stores property records in a MySQL database.
-        - Tables include fields like `id`, `address`, `price`, `size`, and `description`.
+3. **EC2 Instance: Spring Boot**:
+   - This represents another Amazon EC2 instance running the **Spring Boot backend**, which handles the core business logic of the application.
+   - **Spring Boot Backend**:
+      - The Spring Boot backend processes requests from the browser and interacts with the database as needed. It includes:
+         - `Properties Service`: A service responsible for operations related to real estate properties (e.g., creating, updating, and deleting properties).
+         - `User Service`: A service that manages user-related operations such as authentication, registration, and profile management.
 
-3. **Deployment**:
-    - **Localhost**:
-        - Runs the application locally during development and testing.
-        - Uses Docker Compose to start the MySQL container
-    - **AWS**:
-    - **ServerSQL**:
-        - Hosts the MySQL database for storing property records.
-        - Configured to allow remote connections from the backend application.
+4. **HTTPS Connections**:
+   - **Browser to Apache (HTTPS)**: The browser securely communicates with the Apache server over HTTPS on **port 443**. The Apache server serves static HTML pages (login, register, properties) to the browser.
+   - **Browser to Spring Boot (HTTPS)**: The browser also makes secure HTTPS requests directly to the Spring Boot backend on **port 443** for dynamic operations, such as interacting with the `Properties` and `User` services (e.g., saving new property data, or authenticating users).
 
-
-## Built With
-
-- [Maven](https://maven.apache.org/) - Dependency Management
-- [Spring Boot](https://spring.io/projects/spring-boot) - Framework for building microservices
-- [Docker](https://www.docker.com/) - Containerization
-- [MySQL](https://www.mysql.com/) - Relational Database
+5. **Apache to Spring Boot (HTTP)**:
+   - While the browser communicates with both servers using HTTPS, the Apache server communicates with the Spring Boot backend over HTTP. This internal communication could be done over HTTP since it is within the secured internal network between the two EC2 instances, although it can also be upgraded to HTTPS for added security.
 
 ## Generating Project Documentation
 
 1. **Generate the Site**
-    - Run the following command to generate the site documentation:
-      ```sh
-      mvn site
-      ```
+   - Run the following command to generate the site documentation:
+     ```sh
+     mvn site
+     ```
 
 2. **Add Javadoc Plugin for Documentation**
-    - Add the Javadoc plugin to the `reporting` section of the `pom.xml`:
-      ```xml
-      <project>
-        ...
-        <reporting>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <version>2.10.1</version>
-              <configuration>
-                ...
-              </configuration>
-            </plugin>
-          </plugins>
-        </reporting>
-        ...
-      </project>
-      ```
+   - Add the Javadoc plugin to the `reporting` section of the `pom.xml`:
+     ```xml
+     <project>
+       ...
+       <reporting>
+         <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-javadoc-plugin</artifactId>
+             <version>2.10.1</version>
+             <configuration>
+               ...
+             </configuration>
+           </plugin>
+         </plugins>
+       </reporting>
+       ...
+     </project>
+     ```
 
-    - To generate Javadoc as an independent element, add the plugin in the `build` section of the `pom.xml`:
-      ```xml
-      <project>
-        ...
-        <build>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <version>2.10.1</version>
-              <configuration>
-                ...
-              </configuration>
-            </plugin>
-          </plugins>
-        </build>
-        ...
-      </project>
-      ```
+   - To generate Javadoc as an independent element, add the plugin in the `build` section of the `pom.xml`:
+     ```xml
+     <project>
+       ...
+       <build>
+         <plugins>
+           <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-javadoc-plugin</artifactId>
+             <version>2.10.1</version>
+             <configuration>
+               ...
+             </configuration>
+           </plugin>
+         </plugins>
+       </build>
+       ...
+     </project>
+     ```
 
 3. **Generate Javadoc Commands**
-    - Use the following commands to generate Javadocs:
-      ```sh
-      mvn javadoc:javadoc
-      mvn javadoc:jar
-      mvn javadoc:aggregate
-      mvn javadoc:aggregate-jar
-      mvn javadoc:test-javadoc
-      mvn javadoc:test-jar
-      mvn javadoc:test-aggregate
-      mvn javadoc:test-aggregate-jar
-      ```
+   - Use the following commands to generate Javadocs:
+     ```sh
+     mvn javadoc:javadoc
+     mvn javadoc:jar
+     mvn javadoc:aggregate
+     mvn javadoc:aggregate-jar
+     mvn javadoc:test-javadoc
+     mvn javadoc:test-jar
+     mvn javadoc:test-aggregate
+     mvn javadoc:test-aggregate-jar
+     ```
 
 ## License
 This project is licensed under the MIT License - see the `LICENSE.txt` file for details.
@@ -397,5 +456,5 @@ We use [Git](https://github.com/) for version control. For available versions, s
 
 ## Author
 
-- **Hann Jang** - 
+**Hann Jang** 
 
